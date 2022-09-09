@@ -19,16 +19,22 @@ Route::get('/', function () {
 });
 
 Route::group([
-    'middleware' => 'guest',
+    'middleware' => 'auth.global',
+    'namespace' => 'App\Http\Controllers'
 ], function () {
-    Route::get('/login', 'LoginController@showLoginForm')->name('login');
-    Route::post('/login', 'LoginController@authenticate')->name('authenticate');
+    Route::post('/file-uploader', 'FileUploadController@FileUploader');
 });
 
 Route::group([
-    'middleware' => 'auth:api'
+    'middleware' => 'guest',
+    'namespace' => 'App\Http\Controllers'
 ], function () {
-    Route::get('/user', function (Request $request) {
-        return $request->user();
-    });
+    Route::post('/token', 'CredentialController@AuthSystem');
+});
+
+Route::group([
+    'middleware' => 'token',
+    'namespace' => 'App\Http\Controllers\API'
+], function () {
+    Route::post('/login', 'AuthController@index');
 });
