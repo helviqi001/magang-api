@@ -22,6 +22,13 @@ Route::group([
 
 Route::group([
     'middleware' => 'auth.backoffice',
+    'namespace' => 'App\Http\Controllers\Cms',
+], function () {
+    Route::get('/auth/my-privileges', 'AuthController@myPrivileges');
+});
+
+Route::group([
+    'middleware' => 'auth.backoffice',
     'namespace' => 'App\Http\Controllers\CMS\Manage',
     'prefix' => 'manage/user'
 ], function () {
