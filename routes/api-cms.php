@@ -50,3 +50,27 @@ Route::group([
     Route::put('/{id}', 'RoleController@update');
     Route::delete('/{id}', 'RoleController@destroy');
 });
+
+Route::group([
+    'middleware' => 'auth.backoffice',
+    'namespace' => 'App\Http\Controllers\CMS\Manage',
+    'prefix' => 'manage/menu-group'
+], function () {
+    Route::get('/', 'MenuGroupController@index');
+    Route::post('/', 'MenuGroupController@store');
+    Route::get('/{id}', 'MenuGroupController@show');
+    Route::put('/{id}', 'MenuGroupController@update');
+    Route::delete('/{id}', 'MenuGroupController@destroy');
+});
+
+Route::group([
+    'middleware' => 'auth.backoffice',
+    'namespace' => 'App\Http\Controllers\CMS\Manage',
+    'prefix' => 'manage/menu-item'
+], function () {
+    Route::get('/', 'MenuItemController@index');
+    Route::post('/', 'MenuItemController@store');
+    Route::get('/{id}', 'MenuItemController@show');
+    Route::put('/{id}', 'MenuItemController@update');
+    Route::delete('/{id}', 'MenuItemController@destroy');
+});
