@@ -25,10 +25,17 @@ class UserController extends Controller
     {
         $request->request->replace($this->convertCaseStyle('snakeCase', $request->all()));
 
+        $sortBy = $request->input('sort_by') ?? 'created_at';
+        $sort = $request->input('sort') ?? 'desc';
+
         $data = User::ofSelect()
             ->filter($request->all())
-            ->orderBy('created_at', 'desc');
+            ->orderBy($sortBy, $sort);
+
         $data = $data->paginate($request->limit ?? 10);
+        foreach ($data->items() as $item) {
+            $item->avatar = $item->avatar ?? \URL::to('/') . '/file-upload/Avatar/default.png';
+        }
 
         $result = [
             'currentPage' => $data->currentPage(),

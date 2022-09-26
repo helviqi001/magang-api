@@ -26,9 +26,12 @@ class RoleController extends Controller
     {
         $request->request->replace($this->convertCaseStyle('snakeCase', $request->all()));
 
+        $sortBy = $request->input('sort_by') ?? 'created_at';
+        $sort = $request->input('sort') ?? 'desc';
+
         $data = Role::ofSelect()
             ->filter($request->all())
-            ->orderBy('created_at', 'desc');
+            ->orderBy($sortBy, $sort);
         $data = $data->paginate((int)$request->limit ?? 10);
 
         $result = [
