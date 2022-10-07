@@ -11,4 +11,5 @@ Homestead.yaml
 npm-debug.log
 yarn-error.log
 /.idea
-public/file-upload
+public/file-upload/Avatar/*
+!public/file-upload/Avatar/default.png

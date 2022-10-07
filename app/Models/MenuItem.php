@@ -52,4 +52,9 @@ class MenuItem extends Model
         }
         return $query;
     }
+
+    public function menuGroup()
+    {
+        return $this->hasOne(MenuGroup::class, 'menu_group_id', 'menu_group_id');
+    }
 }

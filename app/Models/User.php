@@ -29,7 +29,7 @@ class User extends Model
 
     public function scopeOfSelect($query)
     {
-        return $query->select('user_id', 'name', 'email', 'username', 'avatar', 'birth_date', 'created_at', 'updated_at');
+        return $query->select('user_id', 'name', 'email', 'username', 'avatar', 'birth_date','role_id', 'created_at', 'updated_at');
     }
 
     public function scopeFilter($query, $filter)

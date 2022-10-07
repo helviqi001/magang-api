@@ -3,8 +3,7 @@
 namespace App\Http\Controllers\CMS\Manage;
 
 use App\Http\Controllers\Controller;
-use App\Models\Privilege;
-use App\Models\Role;
+use App\Models\MenuItem;
 use App\Helper\CaseStylesHelper;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -13,7 +12,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Symfony\Component\HttpFoundation\Response;
 
-class RoleController extends Controller
+class MenuItemController extends Controller
 {
     use CaseStylesHelper;
 
@@ -29,16 +28,17 @@ class RoleController extends Controller
         $sortBy = $request->input('sort_by') ?? 'created_at';
         $sort = $request->input('sort') ?? 'desc';
 
-        $data = Role::ofSelect()
+        $data = MenuItem::ofSelect()
             ->filter($request->all())
             ->orderBy($sortBy, $sort);
-        $data = $data->paginate((int)$request->limit ?? 10);
+
+        $data = $data->paginate($request->limit ?? 10);
 
         $result = [
             'currentPage' => $data->currentPage(),
             'from' => $data->firstItem() ?? 0,
             'lastPage' => $data->lastPage(),
-            'perPage' => $data->perPage(),
+            'perPage' => (int)$data->perPage(),
             'to' => $data->lastItem() ?? 0,
             'total' => $data->total(),
             'items' => $this->convertCaseStyle('camelCase', $data->items())
@@ -58,18 +58,21 @@ class RoleController extends Controller
         $request->request->replace($this->convertCaseStyle('snakeCase', $request->all()));
         $validator = Validator::make($request->all(), [
             'name' => ['required', 'max:255'],
-            'privileges' => ['required', 'array'],
-            'privileges.*.menu_item_id' => ['required', 'exists:menu_items,menu_item_id']
+            'email' => ['required', 'email', 'max:255', Rule::unique('users')->whereNull('deleted_at')],
+            'username' => ['required', 'max:255', Rule::unique('users')->whereNull('deleted_at')],
+            'avatar' => ['required', 'max:255'],
+            'birth_date' => ['required', 'date'],
+            'password' => ['required', 'min:4']
         ]);
 
         if ($validator->fails()) {
             return $this->sendResponse(false, $validator->getMessageBag()->first())->setStatusCode(Response::HTTP_BAD_REQUEST);
         }
 
-        $dataRole = Role::ofSelect()->create($request->only('name'));
-        $dataRole->privileges()->createMany($request->get('privileges'));
+        $request->request->set('password', Hash::make($request->get('password')));
+        $data = MenuItem::ofSelect()->create($request->all());
 
-        return $this->sendResponse(true, 'Ok', $this->convertCaseStyle('camelCase', $dataRole));
+        return $this->sendResponse(true, 'Ok', $this->convertCaseStyle('camelCase', $data));
     }
 
     /**
@@ -80,11 +83,7 @@ class RoleController extends Controller
      */
     public function show($id)
     {
-        $data = Role::ofSelect()->with([
-            'privileges' => function ($tagQuery) {
-                $tagQuery->ofSelect();
-            }
-        ])->where('role_id', '=', $id)->first();
+        $data = MenuItem::ofSelect()->where('menu_item_id', '=', $id)->first();
 
         if ($data == null) {
             return $this->sendResponse(false, 'Data not found')->setStatusCode(Response::HTTP_NOT_FOUND);
@@ -105,23 +104,27 @@ class RoleController extends Controller
         $request->request->replace($this->convertCaseStyle('snakeCase', $request->all()));
         $validator = Validator::make($request->all(), [
             'name' => ['required', 'max:255'],
+            'email' => 'required|email|max:255|unique:users,email,' . $id . ',menu_item_id,deleted_at,null',
+            'username' => 'required|max:255|unique:users,email,' . $id . ',menu_item_id,deleted_at,null',
+            'avatar' => ['required', 'max:255'],
+            'birth_date' => ['required', 'date'],
         ]);
 
         if ($validator->fails()) {
             return $this->sendResponse(false, $validator->getMessageBag()->first())->setStatusCode(Response::HTTP_BAD_REQUEST);
         }
 
-        $data = Role::ofSelect()->where('role_id', '=', $id)->first();
+        $data = MenuItem::ofSelect()->where('menu_item_id', '=', $id)->first();
 
         if ($data == null) {
             return $this->sendResponse(false, 'Data not found')->setStatusCode(Response::HTTP_NOT_FOUND);
         }
-        $data->update($request->only('name'));
 
-        foreach ($request->get('privileges') as $privilege) {
-            Privilege::where('privilege_id', '=', $privilege['privilege_id'])->update($privilege);
+        if ($request->get('password') != "") {
+            $request->request->set('password', Hash::make($request->get('password')));
         }
 
+        $data->fill($request->all())->save();
         return $this->sendResponse(true, 'Ok', $this->convertCaseStyle('camelCase', $data));
     }
 
@@ -133,12 +136,11 @@ class RoleController extends Controller
      */
     public function destroy($id)
     {
-        $data = Role::ofSelect()->where('role_id', '=', $id)->first();
+        $data = MenuItem::ofSelect()->where('menu_item_id', '=', $id)->first();
         if ($data == null) {
             return $this->sendResponse(false, 'Data not found')->setStatusCode(Response::HTTP_NOT_FOUND);
         }
 
-        $data->privileges()->delete();
         $data->delete();
         return $this->sendResponse(true, 'Ok', $this->convertCaseStyle('camelCase', $data));
     }
