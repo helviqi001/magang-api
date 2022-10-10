@@ -36,5 +36,12 @@ Route::group([
     'middleware' => 'token',
     'namespace' => 'App\Http\Controllers\API'
 ], function () {
-    Route::post('/login', 'AuthController@index');
+    Route::post('/register', 'AuthController@register');
+    Route::post('/login', 'AuthController@login');
+    Route::post('/logout', 'AuthController@logout');
+    // Route::get('email/verify/{customer_id}', [VerificationController::class, 'verify'])->name('verification.verify');
+    // Route::get('email/resend', [VerificationController::class, 'resend'])->name('verification.resend');
+    Route::post('password/email', 'ForgotPasswordController@forgot');
+    Route::post('password/reset', 'ForgotPasswordController@forgot');
 });
+
