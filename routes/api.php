@@ -45,3 +45,24 @@ Route::group([
     Route::post('password/reset', 'ForgotPasswordController@forgot');
 });
 
+Route::group([
+    'middleware' => 'token',
+    'namespace' => 'App\Http\Controllers\API'
+], function () {
+    Route::get('/wisata', 'WisataController@index');
+    Route::post('/wisata', 'WisataController@store');
+    Route::get('/wisata/{id}', 'WisataController@show');
+    Route::put('/wisata/{id}', 'WisataController@update');
+    Route::delete('/wisata/{id}', 'WisataController@destroy');
+});
+
+Route::group([
+    'middleware' => 'token',
+    'namespace' => 'App\Http\Controllers\API'
+], function () {
+    Route::get('/kuliner', 'KulinerController@index');
+    Route::post('/kuliner', 'KulinerController@store');
+    Route::get('/kuliner/{id}', 'KulinerController@show');
+    Route::put('/kuliner/{id}', 'KulinerController@update');
+    Route::delete('/kuliner/{id}', 'KulinerController@destroy');
+});
