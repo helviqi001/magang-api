@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\Kuliner;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class KulinerController extends Controller
 {
@@ -13,22 +14,47 @@ class KulinerController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $kuliner = Kuliner::all();
-        return response()->json(['message' => 'success','data' => $kuliner]);
-    }
+        // $kuliner = Kuliner::all();
+        // $kuliner = Kuliner::paginate(10);
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        $kuliner = Kuliner::create($request->all());
-        return response()->json(['message' => 'Data has been inserted success','data' => $kuliner]);
+        // $result = [
+        //     'data'=> $kuliner,
+        //     'currentPage' => $kuliner->currentPage(),
+        //     'from' => $kuliner->firstItem() ?? 0,
+        //     'lastPage' => $kuliner->lastPage(),
+        //     'perPage' => $kuliner->perPage(),
+        //     'to' => $kuliner->lastItem() ?? 0,
+        //     'total' => $kuliner->total()
+        // ];
+
+        // return $this->sendResponse(true, 'Ok', $result);
+
+        //CARA 2
+        $query = Kuliner::query();
+
+        if ($s = $request->input('s')) {
+            $query->whereRaw("name_kuliner LIKE '%" . $s . "%'");
+        }
+
+        if ($sort = $request->input('sort')) {
+            $query->ordeyBy('name_kuliner', $sort);
+        }
+        $query = $query->paginate((int)$request->limit ?? 10);
+
+        $result = [
+            'data'=> $query,
+            'currentPage' => $query->currentPage(),
+            'from' => $query->firstItem() ?? 0,
+            'lastPage' => $query->lastPage(),
+            'perPage' => $query->perPage(),
+            'to' => $query->lastItem() ?? 0,
+            'total' => $query->total()
+        ];
+
+        return $this->sendResponse(true, 'Ok', $result);
+
     }
 
     /**
@@ -40,33 +66,10 @@ class KulinerController extends Controller
     public function show($id)
     {
         $kuliner = Kuliner::find($id);
-        return response()->json(['message' => 'success','data' => $kuliner]);
-    }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Kuliner  $kuliner
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        $kuliner = Kuliner::find($id);
-        $kuliner->update($request->all());
-        return response()->json(['message' => 'Data has been updated success','data' => $kuliner]);
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Kuliner  $kuliner
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        $kuliner = Kuliner::find($id);
-        $kuliner->delete();
-        return response()->json(['message' => 'Data has been deleted success','data' => null]);
+        if ($kuliner == null) {
+            return $this->sendResponse(false, 'Data not found')->setStatusCode(Response::HTTP_NOT_FOUND);
+        }
+        return response()->json(['message' => 'Success','data' => $kuliner]);
     }
 }

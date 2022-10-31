@@ -43,58 +43,63 @@ class AuthController extends Controller
     //Controller Login
     public function login(Request $request)
     {
-        // $this->validate($request, [
-        //     'email' => 'required',
-        //     'password' => 'required'
-        // ]);
+        
+        $customer = Customer::where('email', $request->email);
 
-        // $email = $request->input('email');
-        // $password = $request->input('password');
+        if ($customer->exists()) {
+            $customer = $customer->first();
+            if (Hash::check($request->get('password'), $customer->password)) {
+                $payload = $this->jwt($request->token, $customer);
+                $token = JWT::encode($payload, env('JWT_SECRET'), 'HS256');
 
-        // $customer = Customer::where('email', $email)->first();
-        // if (!$customer) {
-        //     return response()->json(['message' => 'Login gagal'], 401);
-        // }
-
-        // $isValidPassword = Hash::check($password, $customer->password);
-        // if (!$isValidPassword) {
-        //     return response()->json(['message' => 'Login gagal'], 401);
-        // }
-
-        // $generateToken = bin2hex(random_bytes(40));
-        // $customer->update([
-        //     'token' => $generateToken
-        // ]);
-        // return response()->json([
-        //         $customer,
-        //         'token' => $generateToken
-        //     ], Response::HTTP_OK);
-
-
-        //CARA 2
-        $validator = Validator::make($request->all(), [
-            'email' => 'required',
-            'password' => 'required',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->sendResponse(false, $validator->getMessageBag()->first());
-        }
-        $credential = Credential::where('email', $request->get('email'))->first();
-        if ($credential == null && !Hash::check($request->get('password'), $credential->password)) {
-            return $this->sendResponse(false, "Email atau Password salah")->setStatusCode(Response::HTTP_BAD_REQUEST);
-
+                return $this->sendResponse(true, 'Ok', [
+                    'customerAuth' => [
+                        'name' => $customer->name,
+                        'email' => $customer->email,
+                        'no_telp' => $customer->no_telp,
+                    ],
+                    'platform' => $request->token->platform,
+                    'scope' => $payload['scope'],
+                    'type' => $request->token->type ?? '',
+                    'issuedAt' => $payload['iat'],
+                    'expiredAt' => $payload['exp'],
+                    'token' => $token,
+                ])->setStatusCode(Response::HTTP_OK);
+            }
         }
 
-        $payload = $this->jwt($credential);
-        $token = JWT::encode($payload, env('JWT_SECRET') . 'token', 'HS256');
+        return $this->sendResponse(false, "These credentials do not match our records")
+            ->setStatusCode(Response::HTTP_BAD_REQUEST);
+    }
 
-        return $this->sendResponse(true, 'Token generated', [
-            'email' => $validator->email,
-            'password' => $validator->password,
-            'type' => $credential->type ?? '',
-            'token' => $token,
-        ]);
+    public function jwt($token, $customer)
+    {
+        $payload = [
+            'iss' => \URL::to('/'),
+            'iat' => time(),
+            'sub' => $customer->customer_id,
+            'exp' => 0,
+            'platform' => $token->platform,
+            'scope' => env('APP_ENV'),
+            'type' => $token->type,
+        ];
+
+        switch ($payload['platform']) {
+            case 'Web':
+                $payload['exp'] = time() + 60 * 60 * 24 * env('TOKEN_WEB_EXPIRE', 30);
+                break;
+            case 'Backoffice':
+                $payload['exp'] = time() + 60 * 60 * 24 * env('TOKEN_BACKOFFICE_EXPIRE', 30);
+                break;
+            case 'Android':
+                $payload['exp'] = time() + 60 * 60 * 24 * env('TOKEN_ANDROID_EXPIRE', 30);
+                break;
+            case 'IOS':
+                $payload['exp'] = time() + 60 * 60 * 24 * env('TOKEN_IOS_EXPIRE', 30);
+                break;
+        }
+
+        return $payload;
     }
 
 

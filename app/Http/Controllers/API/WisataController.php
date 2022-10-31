@@ -5,8 +5,6 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\Wisata;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 use Symfony\Component\HttpFoundation\Response;
 
 class WisataController extends Controller
@@ -16,40 +14,48 @@ class WisataController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $wisata = Wisata::all();
-        return response()->json(['message' => 'Success','data' => $wisata]);
-    }
+        // $wisata = Wisata::all();
+        // //$wisata = Wisata::search(' ')->paginate(6);
+        // $wisata = Wisata::paginate(10);
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        // $validator = Validator::make($request->all(), [
-        //     'gambar_wisata' => ['required', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
-        //     'name_wisata' => ['required', 'max:255'],
-        //     'deskripsi' => ['required', 'min:35],
-        //     'harga' => ['required', 'max:255'],
-        //     'fasilitas' => ['required', 'max:225'],
-        //     'operasional' => ['required', 'min:4'],
-        //     'lokasi' => ['required'],
-        // ]);
+        // $result = [
+        //     'data'=> $wisata,
+        //     'currentPage' => $wisata->currentPage(),
+        //     'from' => $wisata->firstItem() ?? 0,
+        //     'lastPage' => $wisata->lastPage(),
+        //     'perPage' => $wisata->perPage(),
+        //     'to' => $wisata->lastItem() ?? 0,
+        //     'total' => $wisata->total()
+        // ];
 
-        // if ($validator->fails()) {
-        //     return $this->sendResponse(false, $validator->getMessageBag()->first())->setStatusCode(Response::HTTP_BAD_REQUEST);
-        // }
+        // return $this->sendResponse(true, 'Ok', $result);
 
-        // $validator = Validator::ofSelect()->create($request->all());
 
-        // return $this->sendResponse(true, 'Ok', $request);
+        //CARA 2
+        $query = Wisata::query();
 
-        $wisata = Wisata::create($request->all());
-        return response()->json(['message' => 'Data has been inserted success','data' => $wisata]);
+        if ($s = $request->input('s')) {
+            $query->whereRaw("name_wisata LIKE '%" . $s . "%'");
+        }
+
+        if ($sort = $request->input('sort')) {
+            $query->ordeyBy('name_wisata', $sort);
+        }
+        $query = $query->paginate((int)$request->limit ?? 10);
+
+        $result = [
+            'data'=> $query,
+            'currentPage' => $query->currentPage(),
+            'from' => $query->firstItem() ?? 0,
+            'lastPage' => $query->lastPage(),
+            'perPage' => $query->perPage(),
+            'to' => $query->lastItem() ?? 0,
+            'total' => $query->total()
+        ];
+
+        return $this->sendResponse(true, 'Ok', $result);
     }
 
     /**
@@ -61,41 +67,10 @@ class WisataController extends Controller
     public function show($id)
     {
         $wisata = Wisata::find($id);
+
+        if ($wisata == null) {
+            return $this->sendResponse(false, 'Data not found')->setStatusCode(Response::HTTP_NOT_FOUND);
+        }
         return response()->json(['message' => 'Success','data' => $wisata]);
-
-        // $data = Wisata::ofSelect()->where('wisata_id', '=', $id)->first();
-
-        // if ($data == null) {
-        //     return $this->sendResponse(false, 'Data not found')->setStatusCode(Response::HTTP_NOT_FOUND);
-        // }
-
-        // return $this->sendResponse(true, 'Ok', $data);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Wisata  $wisata
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request,$id)
-    {
-        $wisata = Wisata::find($id);
-        $wisata->update($request->all());
-        return response()->json(['message' => 'Data has been updated success','data' => $wisata]);
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Wisata  $wisata
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        $wisata = Wisata::find($id);
-        $wisata->delete();
-        return response()->json(['message' => 'Data has been deleted success','data' => null]);
     }
 }
