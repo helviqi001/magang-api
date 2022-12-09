@@ -54,6 +54,7 @@ class AuthController extends Controller
 
                 return $this->sendResponse(true, 'Ok', [
                     'customerAuth' => [
+                        'customer_id' => $customer->customer_id,
                         'name' => $customer->name,
                         'email' => $customer->email,
                         'no_telp' => $customer->no_telp,
@@ -116,11 +117,26 @@ class AuthController extends Controller
     }
 
 
-    public function profile(Request $request)
+    public function profile(Request $id)
     {
-        return response()->jon([
-            'data' => $request->customer
-        ], Response::HTTP_OK);
+        $customer = Customer::find($id);
+        return response()->json(['message' => 'success', 'data' => $customer]);
+    }
+
+    public function profedit(Request $request,$id)
+    {
+        $customer = Customer::where('customer_id', $id)->first();
+        if ($customer) {
+            $customer->update($request->all());
+            return response()->json([
+                'message' => "Success",
+                'data' => $customer
+            ],200);
+        }
+
+        return response()->json([
+            'message' => "Tidak ada Customer!"
+        ], 404);
     }
 
     public function forgot()

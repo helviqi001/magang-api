@@ -16,22 +16,7 @@ class KulinerController extends Controller
      */
     public function index(Request $request)
     {
-        // $kuliner = Kuliner::all();
-        // $kuliner = Kuliner::paginate(10);
 
-        // $result = [
-        //     'data'=> $kuliner,
-        //     'currentPage' => $kuliner->currentPage(),
-        //     'from' => $kuliner->firstItem() ?? 0,
-        //     'lastPage' => $kuliner->lastPage(),
-        //     'perPage' => $kuliner->perPage(),
-        //     'to' => $kuliner->lastItem() ?? 0,
-        //     'total' => $kuliner->total()
-        // ];
-
-        // return $this->sendResponse(true, 'Ok', $result);
-
-        //CARA 2
         $query = Kuliner::query();
 
         if ($s = $request->input('s')) {

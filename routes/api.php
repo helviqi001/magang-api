@@ -41,6 +41,8 @@ Route::group([
     Route::post('/logout', 'AuthController@logout');
     // Route::get('email/verify/{customer_id}', [VerificationController::class, 'verify'])->name('verification.verify');
     // Route::get('email/resend', [VerificationController::class, 'resend'])->name('verification.resend');
+    Route::get('/profile', 'AuthController@profile');
+    Route::put('/profedit/{id}', 'AuthController@profedit');
     Route::post('password/email', 'ForgotPasswordController@forgot');
     Route::post('password/reset', 'ForgotPasswordController@forgot');
 });
