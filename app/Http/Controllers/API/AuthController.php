@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Password;
-use App\Http\Requests\ResetPasswordRequest;
 use App\Models\Credential;
 use Firebase\JWT\JWT;
 use Illuminate\Validation\Rule;
@@ -19,12 +18,16 @@ class AuthController extends Controller
 {
     public function register(Request $request)
     {
-        $this->validate($request, [
+        $validator = Validator::make($request->all(), [
             'name' => ['required', 'max:255'],
             'email' => ['required', 'email', Rule::unique('customers')->whereNull('deleted_at')],
             'no_telp' => ['required'],
             'password' => ['required', 'min:8', 'confirmed'],
         ]);
+
+        if ($validator->fails()) {  
+            return response()->json(['error'=>$validator->errors()], 401); 
+        } 
 
         $customer=Customer::create([
             'name'=>$request->name,
@@ -34,13 +37,13 @@ class AuthController extends Controller
         ]);
 
         return response()->json([
-            'data' => $customer,
-            'message' => 'Data berhasil ditambahkan'
+            'message' => 'Data berhasil ditambahkan',
+            'data' => $customer
         ]);
     }
 
 
-    //Controller Login
+ 
     public function login(Request $request)
     {
         
@@ -103,7 +106,7 @@ class AuthController extends Controller
     }
 
 
-    //Controller logout
+   
     public function logout()
     {
         // auth()->logout();
@@ -116,40 +119,23 @@ class AuthController extends Controller
     }
 
 
-    public function profile(Request $request)
-    {
-        return response()->jon([
-            'data' => $request->customer
-        ], Response::HTTP_OK);
-    }
+    // public function reset()
+    // {
+    //     $credentials = request()->validate([
+    //         'email' => 'required|email',
+    //         'token' => 'required|string',
+    //         'password' => 'required|string|confirmed'
+    //     ]);
 
-    public function forgot()
-    {
-        $credentials = request()->validate(['email' => 'required|email']);
-        Password::sendResetLink($credentials);
+    //     $reset_password_status = Password::reset($credentials, function ($customer, $password) {
+    //         $customer->password = Hash::make($password);
+    //         $customer->save();
+    //     });
 
-        return response()->json([
-            'message' => 'Reset password link sent on your email id'
-        ]);
-    }
+    //     if ($reset_password_status == Password::INVALID_TOKEN) {
+    //         return response()->json(["msg" => "Invalid token provided"], 400);
+    //     }
 
-    public function reset()
-    {
-        $credentials = request()->validate([
-            'email' => 'required|email',
-            'token' => 'required|string',
-            'password' => 'required|string|confirmed'
-        ]);
-
-        $reset_password_status = Password::reset($credentials, function ($user, $password) {
-            $user->password = Hash::make($password);
-            $user->save();
-        });
-
-        if ($reset_password_status == Password::INVALID_TOKEN) {
-            return response()->json(["msg" => "Invalid token provided"], 400);
-        }
-
-        return response()->json(["msg" => "Password has been successfully changed"]);
-    }
+    //     return response()->json(["msg" => "Password has been successfully changed"]);
+    // }
 }

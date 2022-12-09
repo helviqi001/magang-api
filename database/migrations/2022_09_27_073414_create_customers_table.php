@@ -20,6 +20,8 @@ class CreateCustomersTable extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('no_telp');
             $table->string('password');
+            $table->integer('otp')->nullable();
+            $table->tinyInteger('otp_verify')->default( 0);
             $table->rememberToken();
             $table->softDeletes();
             $table->timestamps();

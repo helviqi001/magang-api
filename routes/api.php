@@ -39,11 +39,13 @@ Route::group([
     Route::post('/register', 'AuthController@register');
     Route::post('/login', 'AuthController@login');
     Route::post('/logout', 'AuthController@logout');
-    // Route::get('email/verify/{customer_id}', [VerificationController::class, 'verify'])->name('verification.verify');
-    // Route::get('email/resend', [VerificationController::class, 'resend'])->name('verification.resend');
-    Route::post('password/email', 'ForgotPasswordController@forgot');
-    Route::post('password/reset', 'ForgotPasswordController@forgot');
+    Route::post('/forgot', 'ForgotPasswordController@forgot');   
+    Route::post('/verifyOtp', 'ForgotPasswordController@verifyOtp');
+    Route::post('/resendOtp', 'ForgotPasswordController@resendOtp');
+    Route::put('/reset', 'ForgotPasswordController@reset');
 });
+
+
 
 Route::group([
     'middleware' => 'token',

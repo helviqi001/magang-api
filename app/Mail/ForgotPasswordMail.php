@@ -7,19 +7,20 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class SendMail extends Mailable
+class ForgotPasswordMail extends Mailable
 {
     use Queueable, SerializesModels;
-    public $generateToken;
 
+    public $otp;
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($generateToken)
+    public function __construct($otp)
     {
-        $this->token = $generateToken;
+        //
+        $this->otp = $otp;
     }
 
     /**
@@ -29,8 +30,9 @@ class SendMail extends Mailable
      */
     public function build()
     {
-        return $this->markdown('Email.forgotPassword')->with([
-            'token' => $this->token
-        ]);
+        // $data = $this->data;
+        return $this->from('no-reply@mail.com')
+        ->subject('OTP')
+        ->with('otp', $this->otp);
     }
 }

@@ -1,59 +1,151 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Mail\SendMail;
+use App\Mail\ForgotPasswordMail;
 use App\Models\Customer;
+use App\Models\PasswordReset;
+use App\Notifications\OTPMail;
 use Carbon\Carbon;
+use Illuminate\Auth\Notifications\ResetPassword;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Mail\Message;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Password;
+use PHPUnit\Framework\Constraint\Exception;
+
 
 class ForgotPasswordController extends Controller
 {
-    public function forgot_password(Request $request){
-        if(!$this->validEmail($request->email)){
-            return response()->json([
-                'message'=>'Email not found!'
-            ], Response::HTTP_NOT_FOUND);
-        }else{
-            $this->sendEmail($request->email);
-            return response()->json([
-                'message'=>'Password reset mail has been sent!'
-            ], Response::HTTP_OK);
-        }
-    }
-
-    public function sendEmail($email){
-        $generateToken = $this->createToken($email);
-        Mail::to($email)->send(new SendMail($generateToken));
-    }
-
-    public function validMail($email){
-        return !!Customer::where('email', $email)->first();
-    }
-
-    public function createToken($email){
-        $isToken = DB::table('password_resets')->where('email', $email)->first();
-        if($isToken){
-            return $isToken->token;
-        }
+    // public function forgot(Request $request){
+    //     $request -> validate([
+    //         'email'=> 'required','email',
+    //     ]);
+    //     $email = Customer::where('email', $request->email)->first();
         
-        $generateToken = Str::random(80);;
-        $this->saveToken($generateToken, $email);
-        return $generateToken;
-    }
+    //     if (!empty($email)) {
+    //         $otp = random_int(100000, 999999);
+    //         $data = [
+    //             'customer_otp' => $otp,
+    //         ];
+            
+    //         Customer::where('email', $request->email)->update($data);
+    //         $data['email'] = Customer::where('email', $request->email)->first();
+    //         $data['subject'] = 'Your otp';
+    //         $data['customer_otp'] = $otp;
+            
+        
+    //         Mail::to($data['email'])->send(new OTPMail($data));
+    //         $row = Customer::where('email', $request->email)->first()->customer_id;
+            
+    //         return response()->json([
+    //             'message'=> 'Check your email!',
+    //             'data'=> $row
+    //         ], Response::HTTP_OK);
+    //     }else{
+    //         return response()->json([
+    //             'message'=> 'The given data was invalid!'
+    //         ], Response::HTTP_UNPROCESSABLE_ENTITY);
+    //     }
+    // }
 
-    public function saveToken($generateToken, $email){
-        DB::table('password_resets')->insert([
-            'email'=>$email,
-            'token'=>$generateToken,
-            'create_at'=>Carbon::now()
+    public function forgot(Request $request){
+        $request->validate([
+            'email' => 'required|email|exists:customers'
         ]);
+        $customer = Customer::where(['email'=> $request->email])->first();
+        $otp = rand(100000,999999);
+        if($otp){
+            return response(['msg'=> 'password reset request']);
+        }
+        Mail::to($customer)->send(new ForgotPasswordMail($otp));
+        return response(['msg'=> 'check your inbox'], 200);
+    }
+    
+
+    
+    public function verifyOtp(Request $request){
+        $request->validate([
+            'otp'=> ['required'],
+        ]);
+
+        $customer_id = Customer::where('otp', $request->customer_otp)->first();
+
+        if (!empty($customer_id)) {
+            if(Auth::loginUsingId($customer_id->customer_id)){
+                return response()->json([
+                    'message'=> 'Logged in!'
+                ], Response::HTTP_OK);
+            }else{
+                return response()->json([
+                    'message'=> 'Wrong otp entered!'
+                ], Response::HTTP_PAYMENT_REQUIRED);
+            }
+        }
     }
 
 
+    public function resendOtp(Request $request, $email){
+        $otp =random_int(100000, 999999);
+        
+        $data = [
+            'customer_otp'=> $otp,
+        ];
+
+        Customer::where('customer_id', $request->customer_id)->update($data);
+
+        $data['email'] = Customer::where('customer_id', $request->customer_id)->first()->email;
+        $data['subject'] = 'Your resended otp';
+        $data['otp'] = $otp;
+
+        Mail::to($data['email'])->send(new OTPMail($data));
+
+        return response()->json([
+            'message'=> 'Check resended otp in your email!'
+        ], Response::HTTP_OK);
+    }
+
+    // public function reset(Request $request){
+    //     $validator = Validator::make($request->all(), [
+    //         'password'=> ['required'],
+    //         'password_confirmation'=> ['required','same:password']
+    //     ]);
+
+    //     if($validator->fails()){
+    //         return response()->json(['error'=>$validator->errors()], Response::HTTP_UNAUTHORIZED);
+    //     }
+
+    //     $reset_token = DB::table('password_resets')->where($input['token'])->first();
+    //     if($reset_token){
+    //         $customer = Customer::where('email', $reset_token->email)->first();
+    //         DB::table('customers')->where('email', $reset_token->email)->update([
+    //             "password"=> Hash::make($request->input('password'))
+    //         ]);
+
+    //         $token = $customer->createToken($customer->name)->accessToken;
+
+    //         $success =[
+    //             'name'=> $customer->name,
+    //             'token'=> $token
+    //         ];
+
+    //         return response()->json([
+    //             'message'=> 'User password reset successfully. Please login',
+    //             'data'=> $success
+    //         ], Response::HTTP_OK);
+    //     }else{
+    //         return response()->json([
+    //             'message'=> 'invalid token'
+    //         ], Response::HTTP_NOT_FOUND);
+    //     }
+    // }
 }
