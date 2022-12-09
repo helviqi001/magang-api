@@ -16,24 +16,7 @@ class WisataController extends Controller
      */
     public function index(Request $request)
     {
-        // $wisata = Wisata::all();
-        // //$wisata = Wisata::search(' ')->paginate(6);
-        // $wisata = Wisata::paginate(10);
-
-        // $result = [
-        //     'data'=> $wisata,
-        //     'currentPage' => $wisata->currentPage(),
-        //     'from' => $wisata->firstItem() ?? 0,
-        //     'lastPage' => $wisata->lastPage(),
-        //     'perPage' => $wisata->perPage(),
-        //     'to' => $wisata->lastItem() ?? 0,
-        //     'total' => $wisata->total()
-        // ];
-
-        // return $this->sendResponse(true, 'Ok', $result);
-
-
-        //CARA 2
+        
         $query = Wisata::query();
 
         if ($s = $request->input('s')) {

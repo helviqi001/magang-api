@@ -57,6 +57,7 @@ class AuthController extends Controller
 
                 return $this->sendResponse(true, 'Ok', [
                     'customerAuth' => [
+                        'customer_id' => $customer->customer_id,
                         'name' => $customer->name,
                         'email' => $customer->email,
                         'no_telp' => $customer->no_telp,
@@ -119,6 +120,7 @@ class AuthController extends Controller
     }
 
 
+<<<<<<< HEAD
     // public function reset()
     // {
     //     $credentials = request()->validate([
@@ -126,6 +128,29 @@ class AuthController extends Controller
     //         'token' => 'required|string',
     //         'password' => 'required|string|confirmed'
     //     ]);
+=======
+    public function profile(Request $id)
+    {
+        $customer = Customer::find($id);
+        return response()->json(['message' => 'success', 'data' => $customer]);
+    }
+
+    public function profedit(Request $request,$id)
+    {
+        $customer = Customer::where('customer_id', $id)->first();
+        if ($customer) {
+            $customer->update($request->all());
+            return response()->json([
+                'message' => "Success",
+                'data' => $customer
+            ],200);
+        }
+
+        return response()->json([
+            'message' => "Tidak ada Customer!"
+        ], 404);
+    }
+>>>>>>> d4da049baa86dc4dc71e8c5fbb2fd2f35a1ad675
 
     //     $reset_password_status = Password::reset($credentials, function ($customer, $password) {
     //         $customer->password = Hash::make($password);
