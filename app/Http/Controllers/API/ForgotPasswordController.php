@@ -26,52 +26,39 @@ use PHPUnit\Framework\Constraint\Exception;
 
 class ForgotPasswordController extends Controller
 {
-    // public function forgot(Request $request){
-    //     $request -> validate([
-    //         'email'=> 'required','email',
-    //     ]);
-    //     $email = Customer::where('email', $request->email)->first();
-        
-    //     if (!empty($email)) {
-    //         $otp = random_int(100000, 999999);
-    //         $data = [
-    //             'customer_otp' => $otp,
-    //         ];
-            
-    //         Customer::where('email', $request->email)->update($data);
-    //         $data['email'] = Customer::where('email', $request->email)->first();
-    //         $data['subject'] = 'Your otp';
-    //         $data['customer_otp'] = $otp;
-            
-        
-    //         Mail::to($data['email'])->send(new OTPMail($data));
-    //         $row = Customer::where('email', $request->email)->first()->customer_id;
-            
-    //         return response()->json([
-    //             'message'=> 'Check your email!',
-    //             'data'=> $row
-    //         ], Response::HTTP_OK);
-    //     }else{
-    //         return response()->json([
-    //             'message'=> 'The given data was invalid!'
-    //         ], Response::HTTP_UNPROCESSABLE_ENTITY);
-    //     }
-    // }
-
-    public function forgot(Request $request){
-        $request->validate([
-            'email' => 'required|email|exists:customers'
+    public function forgotPassword(Request $request){
+        $request -> validate([
+            'email'=> 'required','email',
         ]);
-        $customer = Customer::where(['email'=> $request->email])->first();
-        $otp = rand(100000,999999);
-        if($otp){
-            return response(['msg'=> 'password reset request']);
+        $email = Customer::where('email', $request->email)->first();
+        
+        if (!empty($email)) {
+            $otp = random_int(100000, 999999);
+            $data = [
+                'otp' => $otp,
+            ];
+            
+            Customer::where('email', $request->email)->update($data);
+            $data['email'] = Customer::where('email', $request->email)->first()->email;
+            $data['subject'] = 'Your otp';
+            $data['otp'] = $otp;
+            $data['view'] = 'emails.forgotPassword';
+            
+        
+            Mail::to($data['email'])->send(new ForgotPasswordMail($data));
+            $row = Customer::where('email', $request->email)->first()->customer_id;
+            
+            return response()->json([
+                'message'=> 'Check your email!',
+                'data'=> $row
+            ], Response::HTTP_OK);
+        }else{
+            return response()->json([
+                'message'=> 'The given data was invalid!'
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
-        Mail::to($customer)->send(new ForgotPasswordMail($otp));
-        return response(['msg'=> 'check your inbox'], 200);
     }
-    
-
+  
     
     public function verifyOtp(Request $request){
         $request->validate([
@@ -98,7 +85,7 @@ class ForgotPasswordController extends Controller
         $otp =random_int(100000, 999999);
         
         $data = [
-            'customer_otp'=> $otp,
+            'otp'=> $otp,
         ];
 
         Customer::where('customer_id', $request->customer_id)->update($data);

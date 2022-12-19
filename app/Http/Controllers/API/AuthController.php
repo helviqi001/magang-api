@@ -118,6 +118,7 @@ class AuthController extends Controller
             'message' => 'Logged out successfully'
         ], Response::HTTP_OK);
     }
+<<<<<<< HEAD
 
 
     // public function reset()
@@ -161,4 +162,6 @@ class AuthController extends Controller
 
     //     return response()->json(["msg" => "Password has been successfully changed"]);
     // }
+=======
+>>>>>>> fa34fff205fec68d30daccc9d6a15dfb63ed4413
 }
