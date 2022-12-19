@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\ForgotPasswordController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -38,20 +39,20 @@ Route::group([
 ], function () {
     Route::post('/register', 'AuthController@register');
     Route::post('/login', 'AuthController@login');
+   
+    // Route::post('/forgotpassword',[ForgotPasswordController::class,'forgotPassword'])->name('forgotPassword');
+    Route::post('/verify', 'ForgotPasswordController@verifyOtp');
+    Route::post('/resend', 'ForgotPasswordController@resendOtp');
     Route::post('/logout', 'AuthController@logout');
-<<<<<<< HEAD
-    Route::post('/forgot', 'ForgotPasswordController@forgot');   
-    Route::post('/verifyOtp', 'ForgotPasswordController@verifyOtp');
-    Route::post('/resendOtp', 'ForgotPasswordController@resendOtp');
-    Route::put('/reset', 'ForgotPasswordController@reset');
-=======
-    // Route::get('email/verify/{customer_id}', [VerificationController::class, 'verify'])->name('verification.verify');
-    // Route::get('email/resend', [VerificationController::class, 'resend'])->name('verification.resend');
-    Route::get('/profile', 'AuthController@profile');
-    Route::put('/profedit/{id}', 'AuthController@profedit');
-    Route::post('password/email', 'ForgotPasswordController@forgot');
-    Route::post('password/reset', 'ForgotPasswordController@forgot');
->>>>>>> d4da049baa86dc4dc71e8c5fbb2fd2f35a1ad675
+});
+
+Route::group([
+    
+    'namespace' => 'App\Http\Controllers\API'
+],  function () {
+    Route::get('/forgotpassword',[ForgotPasswordController::class,'showForgotPassword'])->name('showForgotPassword');
+    Route::post('/forgotpassword',[ForgotPasswordController::class,'forgotPassword'])->name('forgotPassword');
+   
 });
 
 

@@ -31,8 +31,11 @@ class ForgotPasswordMail extends Mailable
     public function build()
     {
         // $data = $this->data;
-        return $this->from('no-reply@mail.com')
-        ->subject('OTP')
-        ->with('otp', $this->otp);
+
+       $otp = $this->otp['otp'];
+        return $this->from($this->otp['email'])
+        ->subject($this->otp['subject'])
+        ->view($this->otp['view'])
+        ->with($otp);
     }
 }

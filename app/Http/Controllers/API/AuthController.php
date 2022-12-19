@@ -118,49 +118,4 @@ class AuthController extends Controller
             'message' => 'Logged out successfully'
         ], Response::HTTP_OK);
     }
-
-
-<<<<<<< HEAD
-    // public function reset()
-    // {
-    //     $credentials = request()->validate([
-    //         'email' => 'required|email',
-    //         'token' => 'required|string',
-    //         'password' => 'required|string|confirmed'
-    //     ]);
-=======
-    public function profile(Request $id)
-    {
-        $customer = Customer::find($id);
-        return response()->json(['message' => 'success', 'data' => $customer]);
-    }
-
-    public function profedit(Request $request,$id)
-    {
-        $customer = Customer::where('customer_id', $id)->first();
-        if ($customer) {
-            $customer->update($request->all());
-            return response()->json([
-                'message' => "Success",
-                'data' => $customer
-            ],200);
-        }
-
-        return response()->json([
-            'message' => "Tidak ada Customer!"
-        ], 404);
-    }
->>>>>>> d4da049baa86dc4dc71e8c5fbb2fd2f35a1ad675
-
-    //     $reset_password_status = Password::reset($credentials, function ($customer, $password) {
-    //         $customer->password = Hash::make($password);
-    //         $customer->save();
-    //     });
-
-    //     if ($reset_password_status == Password::INVALID_TOKEN) {
-    //         return response()->json(["msg" => "Invalid token provided"], 400);
-    //     }
-
-    //     return response()->json(["msg" => "Password has been successfully changed"]);
-    // }
 }
