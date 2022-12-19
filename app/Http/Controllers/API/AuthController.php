@@ -120,7 +120,6 @@ class AuthController extends Controller
     }
 
 
-<<<<<<< HEAD
     // public function reset()
     // {
     //     $credentials = request()->validate([
@@ -128,7 +127,7 @@ class AuthController extends Controller
     //         'token' => 'required|string',
     //         'password' => 'required|string|confirmed'
     //     ]);
-=======
+
     public function profile(Request $id)
     {
         $customer = Customer::find($id);
@@ -150,7 +149,6 @@ class AuthController extends Controller
             'message' => "Tidak ada Customer!"
         ], 404);
     }
->>>>>>> d4da049baa86dc4dc71e8c5fbb2fd2f35a1ad675
 
     //     $reset_password_status = Password::reset($credentials, function ($customer, $password) {
     //         $customer->password = Hash::make($password);
