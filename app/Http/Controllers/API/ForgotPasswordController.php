@@ -26,113 +26,175 @@ use PHPUnit\Framework\Constraint\Exception;
 
 class ForgotPasswordController extends Controller
 {
-    public function forgotPassword(Request $request){
-        $request -> validate([
-            'email'=> 'required','email',
+    public function forgotPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required', 'email',
         ]);
-        $email = Customer::where('email', $request->email)->first();
-        
-        if (!empty($email)) {
+        $customer = Customer::where('email', $request->email)->first();
+
+        if (!empty($customer)) {
             $otp = random_int(100000, 999999);
             $data = [
                 'otp' => $otp,
             ];
-            
+
             Customer::where('email', $request->email)->update($data);
             $data['email'] = Customer::where('email', $request->email)->first()->email;
-            $data['subject'] = 'Your otp';
+            $data['body'] = 'Gunakan kode di bawah ini untuk mengatur ulang kata sandi anda.';
+            $data['body2'] = 'Hello, ' . $customer->name . ' !';
+            $data['subject'] = 'OTP Verification Forgot Password';
             $data['otp'] = $otp;
-            $data['view'] = 'emails.forgotPassword';
-            
-        
-            Mail::to($data['email'])->send(new ForgotPasswordMail($data));
+
+
+            Mail::send('emails.forgotPassword', ['data' => $data], function ($message) use ($data) {
+                $message->to($data['email'])->subject($data['subject']);
+            });
+
             $row = Customer::where('email', $request->email)->first()->customer_id;
-            
+
             return response()->json([
-                'message'=> 'Check your email!',
-                'data'=> $row
+                'message' => 'Check your email!',
+                'data' => $row
             ], Response::HTTP_OK);
-        }else{
+        } else {
             return response()->json([
-                'message'=> 'The given data was invalid!'
+                'message' => 'The given data was invalid!'
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
     }
-  
-    
-    public function verifyOtp(Request $request){
-        $request->validate([
-            'otp'=> ['required'],
-        ]);
 
-        $customer_id = Customer::where('otp', $request->customer_otp)->first();
 
-        if (!empty($customer_id)) {
-            if(Auth::loginUsingId($customer_id->customer_id)){
-                return response()->json([
-                    'message'=> 'Logged in!'
-                ], Response::HTTP_OK);
-            }else{
-                return response()->json([
-                    'message'=> 'Wrong otp entered!'
-                ], Response::HTTP_PAYMENT_REQUIRED);
-            }
+    public function verifyOtp(Request $request)
+    {
+        $verifyotp = $request->otp;
+        $verifyotp = Customer::where('otp', $verifyotp)->first();
+        if ($verifyotp == true) {
+            $verifyotp->otp_verify = 1;
+            $verifyotp->save();
+            $customer = Customer::where('customer_id', $verifyotp->customer_id)->first();
+            $customer->otp_verify = 1;
+            $customer->save();
+
+            return response()->json([
+                'message' => 'Verification Success'
+            ], Response::HTTP_OK);
+        } else {
+            return response()->json([
+                'message' => 'Your OTP is invalid please check your email OTP first'
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+            
         }
     }
 
 
-    public function resendOtp(Request $request, $email){
-        $otp =random_int(100000, 999999);
-        
-        $data = [
-            'otp'=> $otp,
-        ];
+    public function resendOtp(Request $request)
+    {
+        $customer = Customer::where('email', $request->email)->first();
 
-        Customer::where('customer_id', $request->customer_id)->update($data);
+        if (!empty($customer)) {
+            $otp = random_int(100000, 999999);
+            $data = [
+                'otp' => $otp,
+            ];
 
-        $data['email'] = Customer::where('customer_id', $request->customer_id)->first()->email;
-        $data['subject'] = 'Your resended otp';
-        $data['otp'] = $otp;
+            Customer::where('email', $request->email)->update($data);
+            $data['email'] = Customer::where('email', $request->email)->first()->email;
+            $data['body'] = 'Gunakan kode di bawah ini untuk mengatur ulang kata sandi anda.';
+            $data['body2'] = 'Hello back, ' . $customer->name . ' !';
+            $data['subject'] = 'Resend OTP Verification';
+            $data['otp'] = $otp;
 
-        Mail::to($data['email'])->send(new OTPMail($data));
 
-        return response()->json([
-            'message'=> 'Check resended otp in your email!'
-        ], Response::HTTP_OK);
+            Mail::send('emails.forgotPassword', ['data' => $data], function ($message) use ($data) {
+                $message->to($data['email'])->subject($data['subject']);
+            });
+
+            $row = Customer::where('email', $request->email)->first()->customer_id;
+
+            return response()->json([
+                'message' => 'Check resended otp in your email!',
+                'data' => $row
+            ], Response::HTTP_OK);
+        } else {
+            return response()->json([
+                'message' => 'The given data was invalid!'
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
     }
 
-    // public function reset(Request $request){
-    //     $validator = Validator::make($request->all(), [
-    //         'password'=> ['required'],
-    //         'password_confirmation'=> ['required','same:password']
-    //     ]);
+    public function reset(Request $request){
+        // $validator = Validator::make($request->all(), [
+        //     'password'=> ['required'],
+        //     'password_confirmation'=> ['required','same:password']
+        // ]);
 
-    //     if($validator->fails()){
-    //         return response()->json(['error'=>$validator->errors()], Response::HTTP_UNAUTHORIZED);
-    //     }
+        // if($validator->fails()){
+        //     return response()->json(['error'=>$validator->errors()], Response::HTTP_UNAUTHORIZED);
+        // }
 
-    //     $reset_token = DB::table('password_resets')->where($input['token'])->first();
-    //     if($reset_token){
-    //         $customer = Customer::where('email', $reset_token->email)->first();
-    //         DB::table('customers')->where('email', $reset_token->email)->update([
-    //             "password"=> Hash::make($request->input('password'))
-    //         ]);
+        // $reset_token = DB::table('password_resets')->where($input['token'])->first();
+        // if($reset_token){
+        //     $customer = Customer::where('email', $reset_token->email)->first();
+        //     DB::table('customers')->where('email', $reset_token->email)->update([
+        //         "password"=> Hash::make($request->input('password'))
+        //     ]);
 
-    //         $token = $customer->createToken($customer->name)->accessToken;
+        //     $token = $customer->createToken($customer->name)->accessToken;
 
-    //         $success =[
-    //             'name'=> $customer->name,
-    //             'token'=> $token
-    //         ];
+        //     $success =[
+        //         'name'=> $customer->name,
+        //         'token'=> $token
+        //     ];
 
-    //         return response()->json([
-    //             'message'=> 'User password reset successfully. Please login',
-    //             'data'=> $success
-    //         ], Response::HTTP_OK);
-    //     }else{
-    //         return response()->json([
-    //             'message'=> 'invalid token'
-    //         ], Response::HTTP_NOT_FOUND);
-    //     }
-    // }
+        //     return response()->json([
+        //         'message'=> 'User password reset successfully. Please login',
+        //         'data'=> $success
+        //     ], Response::HTTP_OK);
+        // }else{
+        //     return response()->json([
+        //         'message'=> 'invalid token'
+        //     ], Response::HTTP_NOT_FOUND);
+        // }
+
+            // $validator = Validator::make($request->all(), [
+            //     'password'=> 'required|min:8|confirmed'
+            // ]);
+            // if($validator->fails()){
+            //     return response()->json(['error'=>$validator->errors()], 401);
+            // }
+            
+            // $customer = Customer::where('customer_id', $request->customer_id);
+            // $customer->update(['password'=> bcrypt($request->password)]);
+            // return response()->json([
+            //     'success'=> true,
+            //     'msg'=> 'password berhasil di update'
+            // ], Response::HTTP_OK);
+        
+        $customer = PasswordReset::make($request->all(),[
+            'password'=>'required|min:6|max:100',
+            'confirm_password'=>'required|same:password'
+        ]);
+        if ($customer->fails()) {
+            return response()->json([
+                'message'=>'Validations fails',
+                'errors'=>$customer->errors()
+            ],422);
+        }
+
+        $customer_reset = PasswordReset::where('customer_id', $request->customer_id)->first();
+        $customer_reset=$request->customer();
+        if (Hash::check($request->id,$customer_reset->password)) {
+            $customer_reset->update([
+                'password'=>Hash::make($request->password)
+            ]);
+            return response()->json([
+                'message'=>'Password successfully updated',
+            ],200);
+        }else {
+            return response()->json([
+                'message'=>'Customer does not matched',
+            ],400);
+        }
+    }
 }

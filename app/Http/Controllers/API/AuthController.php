@@ -42,8 +42,6 @@ class AuthController extends Controller
         ]);
     }
 
-
- 
     public function login(Request $request)
     {
         
@@ -106,28 +104,14 @@ class AuthController extends Controller
         return $payload;
     }
 
-
-   
     public function logout()
     {
-        // auth()->logout();
-        // return ['message'=>'Berhasil logout!'];
         Auth::logout();
         return response()->json([
             'status' => 'success',
             'message' => 'Logged out successfully'
         ], Response::HTTP_OK);
     }
-<<<<<<< HEAD
-
-
-    // public function reset()
-    // {
-    //     $credentials = request()->validate([
-    //         'email' => 'required|email',
-    //         'token' => 'required|string',
-    //         'password' => 'required|string|confirmed'
-    //     ]);
 
     public function profile(Request $id)
     {
@@ -150,18 +134,4 @@ class AuthController extends Controller
             'message' => "Tidak ada Customer!"
         ], 404);
     }
-
-    //     $reset_password_status = Password::reset($credentials, function ($customer, $password) {
-    //         $customer->password = Hash::make($password);
-    //         $customer->save();
-    //     });
-
-    //     if ($reset_password_status == Password::INVALID_TOKEN) {
-    //         return response()->json(["msg" => "Invalid token provided"], 400);
-    //     }
-
-    //     return response()->json(["msg" => "Password has been successfully changed"]);
-    // }
-=======
->>>>>>> fa34fff205fec68d30daccc9d6a15dfb63ed4413
 }

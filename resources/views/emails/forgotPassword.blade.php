@@ -1,15 +1,13 @@
-@extends('emails.template')
-@section('title','Atur Ulang Kata Sandi')
-@section('content')
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">Tautan Atur Ulang Kata Sandi</div>
-                <div class="card-body">
-                  
-                    <a href="http://localhost/forgotPassword?otp={{$otp['otp']}}">Klik untuk Mereset Kata Sandi</a>.
-                </div>
-            </div>
-        </div>
-    </div>
-@endsection
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>{{$data['subject']}}</title>
+    </head>
+    <body>
+        <p>{{$data['body2']}}</p>
+        <p>{{$data['body']}}</p>
+        <h1 style="color:brown;">{{$data['otp']}}</h1>
+        <p>Thank's,</p>
+        <p>KAWAN</p>
+    </body>
+</html>
