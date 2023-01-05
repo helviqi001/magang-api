@@ -21,5 +21,7 @@ class Kuliner extends Model
         'harga_jumbo',
         'operasional',
         'lokasi',
+        'latitude',
+        'longitude'
     ];
 }

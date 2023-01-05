@@ -6,6 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class ResetPasswordRequest extends FormRequest
 {
+    protected $primaryKey = 'customer_id';
     /**
      * Determine if the user is authorized to make this request.
      *

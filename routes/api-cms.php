@@ -76,7 +76,7 @@ Route::group([
 });
 
 Route::group([
-    'middleware' => 'token',
+    'middleware' => 'auth.backoffice',
     'namespace' => 'App\Http\Controllers\CMS\Manage'
 ], function () {
     Route::get('/wisata', 'WisataController@index');
@@ -87,7 +87,7 @@ Route::group([
 });
 
 Route::group([
-    'middleware' => 'token',
+    'middleware' => 'auth.backoffice',
     'namespace' => 'App\Http\Controllers\CMS\Manage'
 ], function () {
     Route::get('/kuliner', 'KulinerController@index');

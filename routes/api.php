@@ -45,7 +45,7 @@ Route::group([
     Route::post('/forgot', 'ForgotPasswordController@forgot');   
     Route::get('/verifyOtp/{id}', 'ForgotPasswordController@verifyOtp');
     Route::post('/resendOtp', 'ForgotPasswordController@resendOtp');
-    Route::post('/reset/{id}', 'ForgotPasswordController@reset');
+    Route::post('reset/{id}', 'ForgotPasswordController@reset');
     Route::get('/profile', 'AuthController@profile');
     Route::put('/profedit/{id}', 'AuthController@profedit');
     Route::post('password/email', 'ForgotPasswordController@forgot');
