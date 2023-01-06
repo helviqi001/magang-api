@@ -77,7 +77,8 @@ Route::group([
 
 Route::group([
     'middleware' => 'auth.backoffice',
-    'namespace' => 'App\Http\Controllers\CMS\Manage'
+    'namespace' => 'App\Http\Controllers\CMS\Manage',
+    'prefix' => 'manage/wisata'
 ], function () {
     Route::get('/wisata', 'WisataController@index');
     Route::post('/wisata', 'WisataController@store');
@@ -88,7 +89,8 @@ Route::group([
 
 Route::group([
     'middleware' => 'auth.backoffice',
-    'namespace' => 'App\Http\Controllers\CMS\Manage'
+    'namespace' => 'App\Http\Controllers\CMS\Manage',
+    'prefix' => 'manage/kuliner'
 ], function () {
     Route::get('/kuliner', 'KulinerController@index');
     Route::post('/kuliner', 'KulinerController@store');
