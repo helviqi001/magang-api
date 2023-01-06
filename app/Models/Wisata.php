@@ -22,5 +22,7 @@ class Wisata extends Model
         'fasilitas',
         'operasional',
         'lokasi',
+        'latitude',
+        'longitude'
     ];
 }

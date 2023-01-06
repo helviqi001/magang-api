@@ -22,6 +22,8 @@ class CreateKulinersTable extends Migration
             $table->integer('harga_jumbo');
             $table->string('operasional')->nullable();
             $table->string('lokasi');
+            $table->double('latitude');
+            $table->double('longitude');
             $table->softDeletes();
             $table->timestamps();
         });

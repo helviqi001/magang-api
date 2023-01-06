@@ -23,6 +23,8 @@ class CreateWisatasTable extends Migration
             $table->string('fasilitas')->nullable();
             $table->string('operasional')->nullable();
             $table->string('lokasi');
+            $table->double('latitude');
+            $table->double('longitude');
             $table->softDeletes();
             $table->timestamps();
         });

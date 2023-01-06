@@ -4,15 +4,12 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
-use App\Models\PasswordReset;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Symfony\Component\HttpFoundation\Response;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Auth\Events\PasswordReset as ResetPassword;
-use Illuminate\Support\Facades\Password;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 
 class ForgotPasswordController extends Controller
@@ -114,29 +111,38 @@ class ForgotPasswordController extends Controller
         }
     }
 
-    public function reset(Request $request){
+    public function reset($customer_id, Request $request)
+    {   
 
-        // $validator = Validator::make($request->all(), [
-        //     'password'=> 'required|min:8',
-        //     'password_confirmation'=> 'required|same:password',
-        // ]);
-        
-        // if($validator->fails()){
-        //     return response()->json(['error'=>$validator->errors()], Response::HTTP_UNAUTHORIZED);
-        // }
+        $validator = Validator::make($request->all(),[
+            'password' =>'required',
+            'confirm_password' =>'required|same:password',
+        ]);
 
-        // $customer = Customer::where('email', $request->email)->first();
-        // if($customer){
-        //     $customer->password = bcrypt($request->password);
-        //     $customer->save();
-        //     return response()->json([
-        //         'success'=> true,
-        //         'data'=> $customer,            
-        //     ], Response::HTTP_OK);
-        // }else{
-        //     return response()->json(['success'=>false]);
-        // }
+        if ($validator->fails()) {
+            return $this->sendResponse(false, "Validation Error.")->setStatusCode(Response::HTTP_BAD_REQUEST);
+        }
 
-        
+        $reset = DB::table('customers')->where('customer_id', $customer_id)->first();
+        if ($reset) {
+            $customer = Customer::where('password', $reset->password)->first();
+            DB::table('customers')->where('password', $reset->password)->update([
+                "password" => Hash::make($request->input('password'))
+            ]);
+
+            $customer->save();
+            $customer_id = $customer->find($customer->customer_id)->accessId;
+
+            $succes = [
+                "email" => $customer->email,
+                "customer_id" => $customer->customer_id
+            ];
+
+            return $this->sendResponse(true, 'Customer Password Reset successfully. Please login', $succes);
+
+        }else{
+            return $this->sendResponse(false, "Invalid ID", [] )->setStatusCode(Response::HTTP_BAD_REQUEST);
+        }
+
     }
 }
