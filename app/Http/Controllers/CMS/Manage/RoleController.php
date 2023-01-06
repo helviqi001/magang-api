@@ -116,7 +116,7 @@ class RoleController extends Controller
         if ($data == null) {
             return $this->sendResponse(false, 'Data not found')->setStatusCode(Response::HTTP_NOT_FOUND);
         }
-        $data->update($request->only('name'));
+        $data->update($request->only('name', 'description'));
 
         foreach ($request->get('privileges') as $privilege) {
             Privilege::where('privilege_id', '=', $privilege['privilege_id'])->update($privilege);
