@@ -48,8 +48,6 @@ Route::group([
     Route::post('/reset/{id}', 'ForgotPasswordController@reset');
     Route::get('/profile', 'AuthController@profile');
     Route::put('/profedit/{id}', 'AuthController@profedit');
-    Route::post('password/email', 'ForgotPasswordController@forgot');
-    Route::post('password/reset', 'ForgotPasswordController@forgot');
 });
 
 Route::group([
