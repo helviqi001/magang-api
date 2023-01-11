@@ -8,8 +8,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Symfony\Component\HttpFoundation\Response;
-use Illuminate\Support\Facades\Password;
-use App\Models\Credential;
 use Firebase\JWT\JWT;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Validator;

@@ -78,7 +78,6 @@ Route::group([
 Route::group([
     'middleware' => 'auth.backoffice',
     'namespace' => 'App\Http\Controllers\CMS\Manage'
-
 ], function () {
     Route::get('/wisata', 'WisataController@index');
     Route::post('/wisata', 'WisataController@store');
