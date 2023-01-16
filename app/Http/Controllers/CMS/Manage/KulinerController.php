@@ -5,6 +5,7 @@ namespace App\Http\Controllers\CMS\Manage;
 use App\Http\Controllers\Controller;
 use App\Models\Kuliner;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class KulinerController extends Controller
 {
@@ -16,7 +17,13 @@ class KulinerController extends Controller
     public function index()
     {
         $kuliner = Kuliner::all();
-        return response()->json(['message' => 'success','data' => $kuliner]);
+        // return response()->json(['message' => 'success','data' => $kuliner]);
+
+        if ($kuliner->fails()) {
+            return $this->sendResponse(false, 'Data not found')->setStatusCode(Response::HTTP_NOT_FOUND);
+        }
+
+        return $this->sendResponse(true, 'Ok', $kuliner);
     }
 
     /**
@@ -28,7 +35,13 @@ class KulinerController extends Controller
     public function store(Request $request)
     {
         $kuliner = Kuliner::create($request->all());
-        return response()->json(['message' => 'Data has been inserted success','data' => $kuliner]);
+        // return response()->json(['message' => 'Data has been inserted success','data' => $kuliner]);
+
+        if($kuliner->fails()){
+            return response()->json(['error'=>$kuliner->errors()], 406);
+        }
+
+        return $this->sendResponse(true, 'Ok', $kuliner);
     }
 
     /**
@@ -40,7 +53,13 @@ class KulinerController extends Controller
     public function show($id)
     {
         $kuliner = Kuliner::find($id);
-        return response()->json(['message' => 'success','data' => $kuliner]);
+        // return response()->json(['message' => 'success','data' => $kuliner]);
+
+        if ($kuliner->fails()) {
+            return $this->sendResponse(false, 'Data not found')->setStatusCode(Response::HTTP_NOT_FOUND);
+        }
+
+        return $this->sendResponse(true, 'Ok', $kuliner);
     }
 
     /**
@@ -53,8 +72,16 @@ class KulinerController extends Controller
     public function update(Request $request, $id)
     {
         $kuliner = Kuliner::find($id);
+        // $kuliner->update($request->all());
+        // return response()->json(['message' => 'Data has been updated success','data' => $kuliner]);
+
+        if ($kuliner->fails()) {
+            return $this->sendResponse(false, 'Data not found')->setStatusCode(Response::HTTP_NOT_FOUND);
+        }
+
         $kuliner->update($request->all());
-        return response()->json(['message' => 'Data has been updated success','data' => $kuliner]);
+
+        return $this->sendResponse(true, 'Ok', $kuliner);
     }
 
     /**
@@ -66,6 +93,9 @@ class KulinerController extends Controller
     public function destroy($id)
     {
         $kuliner = Kuliner::find($id);
+        if ($kuliner->fails()) {
+            return $this->sendResponse(false, 'Data not found')->setStatusCode(Response::HTTP_NOT_FOUND);
+        }
         $kuliner->delete();
         return response()->json(['message' => 'Data has been deleted success','data' => null]);
     }

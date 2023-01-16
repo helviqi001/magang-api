@@ -55,6 +55,6 @@ class KulinerController extends Controller
         if ($kuliner == null) {
             return $this->sendResponse(false, 'Data not found')->setStatusCode(Response::HTTP_NOT_FOUND);
         }
-        return response()->json(['message' => 'Success','data' => $kuliner]);
+        return $this->sendResponse(true, 'Ok', $kuliner);
     }
 }

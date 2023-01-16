@@ -19,7 +19,13 @@ class WisataController extends Controller
     public function index()
     {
         $wisata = Wisata::all();
-        return response()->json(['message' => 'Success','data' => $wisata]);
+        // return response()->json(['message' => 'Success','data' => $wisata]);
+        
+        if ($wisata->fails()) {
+            return $this->sendResponse(false, 'Data not found')->setStatusCode(Response::HTTP_NOT_FOUND);
+        }
+
+        return $this->sendResponse(true, 'Ok', $wisata);
     }
 
     /**
@@ -32,7 +38,17 @@ class WisataController extends Controller
     {
 
         $wisata = Wisata::create($request->all());
-        return response()->json(['message' => 'Data has been inserted success','data' => $wisata]);
+        // return response()->json(['message' => 'Data has been inserted success','data' => $wisata]);
+
+        // if ($wisata == null) {
+        //     return $this->sendResponse(false, $wisata->getMessageBag()->first())->setStatusCode(Response::HTTP_NOT_ACCEPTABLE);
+        // }
+
+        if($wisata->fails()){
+            return response()->json(['error'=>$wisata->errors()], 406);
+        }
+
+        return $this->sendResponse(true, 'Ok', $wisata);
     }
 
     /**
@@ -44,7 +60,15 @@ class WisataController extends Controller
     public function show($id)
     {
         $wisata = Wisata::find($id);
-        return response()->json(['message' => 'Success','data' => $wisata]);
+        // return response()->json(['message' => 'Success','data' => $wisata]);
+
+        // $data = Wisata::ofSelect()->where('wisata_id', '=', $id)->first();
+
+        if ($wisata->fails()) {
+            return $this->sendResponse(false, 'Data not found')->setStatusCode(Response::HTTP_NOT_FOUND);
+        }
+
+        return $this->sendResponse(true, 'Ok', $wisata);
 
     }
 
@@ -58,8 +82,15 @@ class WisataController extends Controller
     public function update(Request $request,$id)
     {
         $wisata = Wisata::find($id);
+        // return response()->json(['message' => 'Data has been updated success','data' => $wisata]);
+
+        if ($wisata->fails()) {
+            return $this->sendResponse(false, 'Data not found')->setStatusCode(Response::HTTP_NOT_FOUND);
+        }
+
         $wisata->update($request->all());
-        return response()->json(['message' => 'Data has been updated success','data' => $wisata]);
+
+        return $this->sendResponse(true, 'Ok', $wisata);
     }
 
     /**
@@ -71,6 +102,9 @@ class WisataController extends Controller
     public function destroy($id)
     {
         $wisata = Wisata::find($id);
+        if ($wisata->fails()) {
+            return $this->sendResponse(false, 'Data not found')->setStatusCode(Response::HTTP_NOT_FOUND);
+        }
         $wisata->delete();
         return response()->json(['message' => 'Data has been deleted success','data' => null]);
     }
