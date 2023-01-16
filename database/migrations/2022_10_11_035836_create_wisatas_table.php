@@ -15,13 +15,13 @@ class CreateWisatasTable extends Migration
     {
         Schema::create('wisatas', function (Blueprint $table) {
             $table->id('wisata_id');
-            $table->string('gambar_wisata')->nullable();
+            $table->string('gambar_wisata');
             $table->string('name_wisata');
-            $table->string('deskripsi')->nullable();
+            $table->string('deskripsi');
             $table->integer('harga_dewasa');
             $table->integer('harga_anak');
-            $table->string('fasilitas')->nullable();
-            $table->string('operasional')->nullable();
+            $table->string('fasilitas');
+            $table->string('operasional');
             $table->string('lokasi');
             $table->double('latitude');
             $table->double('longitude');

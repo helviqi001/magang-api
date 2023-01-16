@@ -109,7 +109,7 @@ class UserController extends Controller
             'name' => ['required', 'max:255'],
             'email' => 'required|email|max:255|unique:users,email,' . $id . ',user_id,deleted_at,null',
             'username' => 'required|max:255|unique:users,email,' . $id . ',user_id,deleted_at,null',
-            'avatar' => ['required', 'max:255'],
+            'avatar' => ['max:255'],
             'birth_date' => ['required', 'date'],
         ]);
 
@@ -123,12 +123,37 @@ class UserController extends Controller
             return $this->sendResponse(false, 'Data not found')->setStatusCode(Response::HTTP_NOT_FOUND);
         }
 
-        if ($request->get('password') != "") {
-            $request->request->set('password', Hash::make($request->get('password')));
+        if ($request->get('avatar') == null && $request->get('password') == null) {
+            $param = $request->except('avatar', 'password');
+            $update = User::where('user_id', $id)->update($param);
+
+            if ($update) {
+                return $this->sendResponse(true, 'Ok', $this->convertCaseStyle('camelCase', $request->all()));
+            }
+        } elseif ($request->get('avatar') == null) {
+            $param = $request->except('avatar');
+            $update = User::where('user_id', $id)->update($param);
+
+            if ($update) {
+                return $this->sendResponse(true, 'Ok', $this->convertCaseStyle('camelCase', $request->all()));
+            }
+        }  elseif ($request->get('password') == null) {
+            $param = $request->except('password');
+            $update = User::where('user_id', $id)->update($param);
+
+            if ($update) {
+                return $this->sendResponse(true, 'Ok', $this->convertCaseStyle('camelCase', $request->all()));
+            }
         }
 
-        $data->fill($request->all())->save();
-        return $this->sendResponse(true, 'Ok', $this->convertCaseStyle('camelCase', $data));
+        return $this->sendResponse(false, 'Error', (object) array());
+
+        // if ($request->get('password') != "") {
+        //     $request->request->set('password', Hash::make($request->get('password')));
+        // }
+
+        // $data->fill($request->all())->save();
+        // return $this->sendResponse(true, 'Ok', $this->convertCaseStyle('camelCase', $data));
     }
 
     /**

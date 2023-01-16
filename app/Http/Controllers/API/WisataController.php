@@ -54,6 +54,6 @@ class WisataController extends Controller
         if ($wisata == null) {
             return $this->sendResponse(false, 'Data not found')->setStatusCode(Response::HTTP_NOT_FOUND);
         }
-        return response()->json(['message' => 'Success','data' => $wisata]);
+        return $this->sendResponse(true, 'Ok', $wisata);
     }
 }

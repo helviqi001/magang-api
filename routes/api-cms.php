@@ -11,11 +11,11 @@ use Illuminate\Support\Facades\Route;
 | routes are loaded by the RouteServiceProvider within a group which
 | is assigned the "api" middleware group. Enjoy building your API!
 |
-*/
+ */
 
 Route::group([
     'middleware' => 'token',
-    'namespace' => 'App\Http\Controllers\CMS'
+    'namespace' => 'App\Http\Controllers\CMS',
 ], function () {
     Route::post('/login', 'AuthController@login');
 });
@@ -30,7 +30,7 @@ Route::group([
 Route::group([
     'middleware' => 'auth.backoffice',
     'namespace' => 'App\Http\Controllers\CMS\Manage',
-    'prefix' => 'manage/user'
+    'prefix' => 'manage/user',
 ], function () {
     Route::get('/', 'UserController@index');
     Route::post('/', 'UserController@store');
@@ -42,7 +42,7 @@ Route::group([
 Route::group([
     'middleware' => 'auth.backoffice',
     'namespace' => 'App\Http\Controllers\CMS\Manage',
-    'prefix' => 'manage/role'
+    'prefix' => 'manage/role',
 ], function () {
     Route::get('/', 'RoleController@index');
     Route::post('/', 'RoleController@store');
@@ -54,7 +54,7 @@ Route::group([
 Route::group([
     'middleware' => 'auth.backoffice',
     'namespace' => 'App\Http\Controllers\CMS\Manage',
-    'prefix' => 'manage/menu-group'
+    'prefix' => 'manage/menu-group',
 ], function () {
     Route::get('/', 'MenuGroupController@index');
     Route::post('/', 'MenuGroupController@store');
@@ -66,7 +66,7 @@ Route::group([
 Route::group([
     'middleware' => 'auth.backoffice',
     'namespace' => 'App\Http\Controllers\CMS\Manage',
-    'prefix' => 'manage/menu-item'
+    'prefix' => 'manage/menu-item',
 ], function () {
     Route::get('/', 'MenuItemController@index');
     Route::post('/', 'MenuItemController@store');
@@ -76,7 +76,7 @@ Route::group([
 });
 
 Route::group([
-    'middleware' => 'token',
+    'middleware' => 'auth.backoffice',
     'namespace' => 'App\Http\Controllers\CMS\Manage'
 ], function () {
     Route::get('/wisata', 'WisataController@index');
@@ -87,7 +87,7 @@ Route::group([
 });
 
 Route::group([
-    'middleware' => 'token',
+    'middleware' => 'auth.backoffice',
     'namespace' => 'App\Http\Controllers\CMS\Manage'
 ], function () {
     Route::get('/kuliner', 'KulinerController@index');

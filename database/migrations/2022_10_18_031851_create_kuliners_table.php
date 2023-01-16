@@ -15,12 +15,12 @@ class CreateKulinersTable extends Migration
     {
         Schema::create('kuliners', function (Blueprint $table) {
             $table->id('kuliner_id');
-            $table->string('gambar_kuliner')->nullable();
+            $table->string('gambar_kuliner');
             $table->string('name_kuliner');
-            $table->string('deskripsi')->nullable();
+            $table->string('deskripsi');
             $table->integer('harga_reguler');
             $table->integer('harga_jumbo');
-            $table->string('operasional')->nullable();
+            $table->string('operasional');
             $table->string('lokasi');
             $table->double('latitude');
             $table->double('longitude');
