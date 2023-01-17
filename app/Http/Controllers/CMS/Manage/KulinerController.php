@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Kuliner;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Validator;
 
 class KulinerController extends Controller
 {
@@ -13,17 +14,22 @@ class KulinerController extends Controller
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
+     * menampilkan semua list kuliner
      */
-    public function index()
+    public function index(Request $request)
     {
-        $kuliner = Kuliner::all();
-        // return response()->json(['message' => 'success','data' => $kuliner]);
+        // $kuliner = Kuliner::all();
+        // // return response()->json(['message' => 'success','data' => $kuliner]);
 
-        if ($kuliner->fails()) {
-            return $this->sendResponse(false, 'Data not found')->setStatusCode(Response::HTTP_NOT_FOUND);
-        }
+        // if ($kuliner->fails()) {
+        //     return $this->sendResponse(false, 'Data not found')->setStatusCode(Response::HTTP_NOT_FOUND);
+        // }
 
-        return $this->sendResponse(true, 'Ok', $kuliner);
+        // return $this->sendResponse(true, 'Ok', $kuliner);
+
+        $data['q'] = $request->q;
+        $data['rows'] = Kuliner::where('name_kuliner', 'like', '%' . $request->q . '%')->get();
+        return response()->json([$data], 201);
     }
 
     /**
@@ -34,14 +40,37 @@ class KulinerController extends Controller
      */
     public function store(Request $request)
     {
-        $kuliner = Kuliner::create($request->all());
+        // $kuliner = Kuliner::create($request->all());
         // return response()->json(['message' => 'Data has been inserted success','data' => $kuliner]);
 
-        if($kuliner->fails()){
-            return response()->json(['error'=>$kuliner->errors()], 406);
+        // if($kuliner->fails()){
+        //     return response()->json(['error'=>$kuliner->errors()], 406);
+        // }
+
+        // return $this->sendResponse(true, 'Ok', $kuliner);
+
+        $data = $request->all();
+        $validator = Validator::make($data, [
+            'gambar_kuliner'=> 'required',
+            'name_kuliner'=> 'required',
+            'deskripsi'=> 'required',
+            'harga_reguler'=> 'required',
+            'harga_jumbo'=> 'required',
+            'operasional'=> 'required',
+            'lokasi'=> 'required',
+            'latitude'=> 'required',
+            'longitude'=> 'required'
+        ]);
+
+        if ($validator->fails()) {  
+            return response()->json(['error'=>$validator->errors()], 401); 
         }
 
-        return $this->sendResponse(true, 'Ok', $kuliner);
+        $wisata = Kuliner::create($data);
+        return response()->json([
+            'success'=> true,
+            'data'=> $wisata
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -49,6 +78,7 @@ class KulinerController extends Controller
      *
      * @param  \App\Models\Kuliner  $kuliner
      * @return \Illuminate\Http\Response
+     * menampilkan kuliner berdasarkan id
      */
     public function show($id)
     {
