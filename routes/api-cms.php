@@ -13,6 +13,12 @@ use Illuminate\Support\Facades\Route;
 |
  */
 
+ Route::group([
+    'middleware' => 'guest',
+    'namespace' => 'App\Http\Controllers'
+], function () {
+    Route::post('/token', 'CredentialController@AuthSystem');
+});
 Route::group([
     'middleware' => 'token',
     'namespace' => 'App\Http\Controllers\CMS',

@@ -19,17 +19,17 @@ class KulinerController extends Controller
 
         $query = Kuliner::query();
 
-        if ($s = $request->input('s')) {
-            $query->whereRaw("name_kuliner LIKE '%" . $s . "%'");
+        if ($request->has('keyword')) {
+            $query->whereRaw("name_kuliner LIKE '%" . $request->get('keyword') . "%'");
         }
 
-        if ($sort = $request->input('sort')) {
-            $query->ordeyBy('name_kuliner', $sort);
+        if ($request->has('order_by')) {
+            $query->orderBy($request->get('order_by'), $request->get('order'));
         }
-        $query = $query->paginate((int)$request->limit ?? 10);
+        $query = $query->paginate((int)$request->get('limit') ?? 10);
 
         $result = [
-            'data'=> $query,
+            'items'=> $query->items(),
             'currentPage' => $query->currentPage(),
             'from' => $query->firstItem() ?? 0,
             'lastPage' => $query->lastPage(),

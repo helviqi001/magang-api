@@ -31,7 +31,7 @@ class AuthCustomerMiddleware
             ], 401);
         }
 
-        if ($credentials->type != "Customer" && $credentials->sub != "") {
+        if ($credentials->type != "Customer") {
             return response()->json([
                 'data' => null,
                 'message' => 'Unauthorized.',

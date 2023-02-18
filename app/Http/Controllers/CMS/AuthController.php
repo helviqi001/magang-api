@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\CMS;
 
-use App\Helper\CaseStylesHelper;
 use App\Http\Controllers\Controller;
 use App\Models\MenuGroup;
 use App\Models\User;
@@ -13,8 +12,6 @@ use Firebase\JWT\JWT;
 
 class AuthController extends Controller
 {
-    use CaseStylesHelper;
-
     public function username()
     {
         return 'email';
@@ -53,7 +50,7 @@ class AuthController extends Controller
 
     public function myPrivileges(Request $request)
     {
-        $user = User::where('user_id', $request->auth->sub)->with('role.privileges')->first();
+        $user = User::where('user_id', $request->auth->user_id)->with('role.privileges')->first();
 
         $menuIds = collect($user->role->privileges)->map(function ($data) {
             return $data->menu_item_id;
@@ -76,36 +73,6 @@ class AuthController extends Controller
         });
 
         return $this->sendResponse(true, 'Ok', $menuGroup);
-    }
-
-    public function jwt($token, $user)
-    {
-        $payload = [
-            'iss' => \URL::to('/'),
-            'iat' => time(),
-            'sub' => $user->user_id,
-            'exp' => 0,
-            'platform' => $token->platform,
-            'scope' => env('APP_ENV'),
-            'type' => $token->type,
-        ];
-
-        switch ($payload['platform']) {
-            case 'Web':
-                $payload['exp'] = time() + 60 * 60 * 24 * env('TOKEN_WEB_EXPIRE', 30);
-                break;
-            case 'Backoffice':
-                $payload['exp'] = time() + 60 * 60 * 24 * env('TOKEN_BACKOFFICE_EXPIRE', 30);
-                break;
-            case 'Android':
-                $payload['exp'] = time() + 60 * 60 * 24 * env('TOKEN_ANDROID_EXPIRE', 30);
-                break;
-            case 'IOS':
-                $payload['exp'] = time() + 60 * 60 * 24 * env('TOKEN_IOS_EXPIRE', 30);
-                break;
-        }
-
-        return $payload;
     }
 }
 

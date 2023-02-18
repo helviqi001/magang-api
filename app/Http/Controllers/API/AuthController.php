@@ -27,7 +27,7 @@ class AuthController extends Controller
             return response()->json(['error'=>$validator->errors()], 401); 
         } 
 
-        $customer=Customer::create([
+        $customer = Customer::create([
             'name'=>$request->name,
             'email'=>$request->email,
             'no_telp'=>$request->no_telp,
@@ -42,11 +42,9 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        
-        $customer = Customer::where('email', $request->email);
+        $customer = Customer::where('email', $request->email)->first();
 
-        if ($customer->exists()) {
-            $customer = $customer->first();
+        if ($customer) {
             if (Hash::check($request->get('password'), $customer->password)) {
                 $payload = $this->jwt($request->token, $customer);
                 $token = JWT::encode($payload, env('JWT_SECRET'), 'HS256');
@@ -70,36 +68,6 @@ class AuthController extends Controller
 
         return $this->sendResponse(false, "These credentials do not match our records")
             ->setStatusCode(Response::HTTP_BAD_REQUEST);
-    }
-
-    public function jwt($token, $customer)
-    {
-        $payload = [
-            'iss' => \URL::to('/'),
-            'iat' => time(),
-            'sub' => $customer->customer_id,
-            'exp' => 0,
-            'platform' => $token->platform,
-            'scope' => env('APP_ENV'),
-            'type' => $token->type,
-        ];
-
-        switch ($payload['platform']) {
-            case 'Web':
-                $payload['exp'] = time() + 60 * 60 * 24 * env('TOKEN_WEB_EXPIRE', 30);
-                break;
-            case 'Backoffice':
-                $payload['exp'] = time() + 60 * 60 * 24 * env('TOKEN_BACKOFFICE_EXPIRE', 30);
-                break;
-            case 'Android':
-                $payload['exp'] = time() + 60 * 60 * 24 * env('TOKEN_ANDROID_EXPIRE', 30);
-                break;
-            case 'IOS':
-                $payload['exp'] = time() + 60 * 60 * 24 * env('TOKEN_IOS_EXPIRE', 30);
-                break;
-        }
-
-        return $payload;
     }
 
     public function logout()

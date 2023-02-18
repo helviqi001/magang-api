@@ -31,7 +31,7 @@ class AuthBackofficeMiddleware
             ], 401);
         }
 
-        if ($credentials->type != "Backoffice" && $credentials->sub != "") {
+        if ($credentials->type != "Backoffice") {
             return response()->json([
                 'data' => null,
                 'message' => 'Unauthorized.',

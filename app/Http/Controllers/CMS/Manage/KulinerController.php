@@ -18,18 +18,28 @@ class KulinerController extends Controller
      */
     public function index(Request $request)
     {
-        // $kuliner = Kuliner::all();
-        // // return response()->json(['message' => 'success','data' => $kuliner]);
+        $query = Kuliner::query();
 
-        // if ($kuliner->fails()) {
-        //     return $this->sendResponse(false, 'Data not found')->setStatusCode(Response::HTTP_NOT_FOUND);
-        // }
+        if ($request->has('keyword')) {
+            $query->whereRaw("name_kuliner LIKE '%" . $request->get('keyword') . "%'");
+        }
 
-        // return $this->sendResponse(true, 'Ok', $kuliner);
+        if ($request->has('order_by')) {
+            $query->orderBy($request->get('order_by'), $request->get('order'));
+        }
+        $query = $query->paginate((int)$request->get('limit') ?? 10);
 
-        $data['q'] = $request->q;
-        $data['rows'] = Kuliner::where('name_kuliner', 'like', '%' . $request->q . '%')->get();
-        return response()->json([$data], 201);
+        $result = [
+            'items'=> $query->items(),
+            'currentPage' => $query->currentPage(),
+            'from' => $query->firstItem() ?? 0,
+            'lastPage' => $query->lastPage(),
+            'perPage' => $query->perPage(),
+            'to' => $query->lastItem() ?? 0,
+            'total' => $query->total()
+        ];
+
+        return $this->sendResponse(true, 'Ok', $result);
     }
 
     /**

@@ -19,4 +19,33 @@ class Controller extends BaseController
 
         return response()->json($response);
     }
+
+    public function jwt($credential)
+    {
+        $payload = [
+            'iss' => \URL::to('/'),
+            'iat' => time(),
+            'exp' => 0,
+            'platform' => $credential->platform,
+            'scope' => env('APP_ENV'),
+            'type' => $credential->type,
+        ];
+
+        switch ($payload['platform']) {
+            case 'Web':
+                $payload['exp'] = time() + 60 * 60 * 24 * env('TOKEN_WEB_EXPIRE', 30);
+                break;
+            case 'Backoffice':
+                $payload['exp'] = time() + 60 * 60 * 24 * env('TOKEN_BACKOFFICE_EXPIRE', 30);
+                break;
+            case 'Android':
+                $payload['exp'] = time() + 60 * 60 * 24 * env('TOKEN_ANDROID_EXPIRE', 30);
+                break;
+            case 'IOS':
+                $payload['exp'] = time() + 60 * 60 * 24 * env('TOKEN_IOS_EXPIRE', 30);
+                break;
+        }
+
+        return $payload;
+    }
 }

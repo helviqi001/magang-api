@@ -15,10 +15,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             CredentialSeeder::class,
-            MenuGroupSeeder::class,
-            MenuItemSeeder::class,
             RoleSeeder::class,
-            PriviledgeSeeder::class,
             UserSeeder::class
         ]);
     }

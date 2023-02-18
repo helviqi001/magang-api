@@ -56,18 +56,8 @@ Route::group([
     Route::post('/forgotpassword',[ForgotPasswordController::class,'forgotPassword'])->name('forgotPassword');
 });
 
-
-
 Route::group([
-    'middleware' => 'token',
-    'namespace' => 'App\Http\Controllers\API'
-], function () {
-    Route::get('/wisata', 'WisataController@index');
-    Route::get('/wisata/{id}', 'WisataController@show');
-});
-
-Route::group([
-    'middleware' => 'token',
+    'middleware' => 'auth.customer',
     'namespace' => 'App\Http\Controllers\API'
 ], function () {
     Route::get('/kuliner', 'KulinerController@index');
