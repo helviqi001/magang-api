@@ -20,11 +20,12 @@ class Controller extends BaseController
         return response()->json($response);
     }
 
-    public function jwt($credential)
+    public function jwt($credential, $customer = null)
     {
         $payload = [
             'iss' => \URL::to('/'),
             'iat' => time(),
+            'sub' => $customer != null ? $customer->customer_id:'',
             'exp' => 0,
             'platform' => $credential->platform,
             'scope' => env('APP_ENV'),
