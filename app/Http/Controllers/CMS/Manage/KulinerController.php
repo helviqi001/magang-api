@@ -59,9 +59,8 @@ class KulinerController extends Controller
 
         // return $this->sendResponse(true, 'Ok', $kuliner);
 
-        $data = $request->all();
+        $data = $request->except('gambar_kuliner');
         $validator = Validator::make($data, [
-            'gambar_kuliner'=> 'required',
             'name_kuliner'=> 'required',
             'deskripsi'=> 'required',
             'harga_reguler'=> 'required',
@@ -74,6 +73,14 @@ class KulinerController extends Controller
 
         if ($validator->fails()) {  
             return response()->json(['error'=>$validator->errors()], 401); 
+        }
+
+        $data['gambar_kuliner'] = '';
+        if($request->file('gambar_kuliner')){
+            $file= $request->file('gambar_kuliner');
+            $filename = time().'.'.$request->gambar_kuliner->extension();
+            $file->move(public_path('image/kuliner'), $filename);
+            $data['gambar_kuliner'] = url('image/kuliner').'/'.$filename;
         }
 
         $wisata = Kuliner::create($data);
@@ -119,7 +126,16 @@ class KulinerController extends Controller
             return $this->sendResponse(false, 'Data not found')->setStatusCode(Response::HTTP_NOT_FOUND);
         }
 
-        $kuliner->update($request->all());
+        $data = $request->except('gambar_kuliner');
+
+        if($request->file('gambar_kuliner')){
+            $file= $request->file('gambar_kuliner');
+            $filename = time().'.'.$request->gambar_kuliner->extension();
+            $file->move(public_path('image/kuliner'), $filename);
+            $data['gambar_kuliner'] = url('image/kuliner').'/'.$filename;
+        }
+
+        $kuliner->update($data);
 
         return $this->sendResponse(true, 'Ok', $kuliner);
     }
